@@ -43,25 +43,16 @@ int main(int argc, char **argv)
         cout << "Invalid choice for function!" << endl;
         break;
     }
-
-    double localIntg = Trap(local_a, local_b, local_n, h, myFun);
+    double localIntegral = Trap(local_a, local_b, local_n, h, myFun);
+    double totalIntegral{};
+    MPI_Reduce(&localIntegral, &totalIntegral, 1, MPI_DOUBLE, MPI_SUM, 0, MPI_COMM_WORLD);
     if (myRank == 0)
     {
-        double totalIng = localIntg;
-        for (int src = 1; src < worldSize; src++)
-        {
-            MPI_Recv(&localIntg, 1, MPI_DOUBLE, src, MPI_ANY_TAG, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
-            totalIng += localIntg;
-        }
         cout << "Int(f(x), x = " << a << ".." << b << ") = ";
         cout.precision(16);
-        cout << totalIng << endl;
+        cout << totalIntegral << endl;
     }
-    else
-    {
-        MPI_Send(&localIntg, 1, MPI_DOUBLE, 0, 0, MPI_COMM_WORLD);
-    }
-
+    
     MPI_Finalize();
     return 0;
 }
