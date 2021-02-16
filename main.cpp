@@ -85,30 +85,12 @@ void GetData(int &fun, double &a, double &b, int &n, int myRank, int size)
         cout << "Enter n (note that it must be divisible by number of processes): ";
         cin >> n;
         assert(n % size == 0);
+    }
 
-        for (int dest = 1; dest < size; dest++)
-        {
-            tag = 0;
-            MPI_Send(&fun, 1, MPI_INT, dest, tag, MPI_COMM_WORLD);
-            tag = 1;
-            MPI_Send(&a, 1, MPI_DOUBLE, dest, tag, MPI_COMM_WORLD);
-            tag = 2;
-            MPI_Send(&b, 1, MPI_DOUBLE, dest, tag, MPI_COMM_WORLD);
-            tag = 3;
-            MPI_Send(&n, 1, MPI_INT, dest, tag, MPI_COMM_WORLD);
-        }
-    }
-    else
-    {
-        tag = 0;
-        MPI_Recv(&fun, 1, MPI_INT, 0, tag, MPI_COMM_WORLD, &status);
-        tag = 1;
-        MPI_Recv(&a, 1, MPI_DOUBLE, 0, tag, MPI_COMM_WORLD, &status);
-        tag = 2;
-        MPI_Recv(&b, 1, MPI_DOUBLE, 0, tag, MPI_COMM_WORLD, &status);
-        tag = 3;
-        MPI_Recv(&n, 1, MPI_INT, 0, tag, MPI_COMM_WORLD, &status);
-    }
+    MPI_Bcast(&fun, 1, MPI_INT, 0, MPI_COMM_WORLD);
+    MPI_Bcast(&a, 1, MPI_DOUBLE, 0, MPI_COMM_WORLD);
+    MPI_Bcast(&b, 1, MPI_DOUBLE, 0, MPI_COMM_WORLD);
+    MPI_Bcast(&n, 1, MPI_INT, 0, MPI_COMM_WORLD);
 }
 
 double Trap(double local_a, double local_b, int local_n, double h, double (*pFunction)(double))
